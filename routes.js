@@ -1,6 +1,6 @@
 import express from "express";
 import {get, post, remove} from './controller/userController.js'
-import {pool} from "./databasePg.js"
+import pool from "./databasePg.js"
 
 export default function routes(){
 const router = express.Router()
@@ -15,7 +15,7 @@ router.get("/gifts", async (req, res) => {
   res.json(result.rows)
 })
 
-app.post("/gifts/select", async (req, res) => {
+router.post("/gifts/select", async (req, res) => {
   const { id } = req.body
 
   const result = await pool.query(
