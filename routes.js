@@ -12,13 +12,13 @@ router.delete("/users/:id", remove)
 
 router.get("/gifts", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM cgifts")
-    res.json(result.rows)
+    const test = await pool.query("SELECT NOW()");
+    res.json(test.rows);
   } catch (error) {
-    console.error("ERRO NO /gifts:", error)
-    res.status(500).json({ error: error.message })
+    console.error("ERRO REAL:", error);
+    res.status(500).json({ error: error.message });
   }
-})
+});
 
 router.post("/gifts/select", async (req, res) => {
   const { id } = req.body
