@@ -6,9 +6,9 @@ export function get(req, res){
 }
 
 export function post(req, res){
-    const {name, email} = req.body
+    const {name, gift} = req.body
 
-    const user = {id: Date.now(), name, email}
+    const user = {id: Date.now(), name, gift}
 
     users.push(user);
 
@@ -26,3 +26,4 @@ export function remove(req, res){
 
     return res.status(204).send();
 }
+
