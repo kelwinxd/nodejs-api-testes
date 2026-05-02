@@ -2,7 +2,7 @@ import pool from "../databasePg.js"
 
 export async function get(req, res){
     try {
-        const result = await pool.query("SELECT * FROM gifts ORDER BY id ASC")
+        const result = await pool.query("SELECT * FROM givers ORDER BY id ASC")
         return res.json(result.rows)
     } catch (error) {
         return res.status(500).json({ error: error.message })
