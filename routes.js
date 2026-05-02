@@ -1,5 +1,5 @@
 import express from "express";
-import {get, post, remove} from './controller/userController.js'
+import {get, post, remove, patch} from './controller/userController.js'
 import pool from "./databasePg.js"
 
 export default function routes(){
@@ -8,6 +8,7 @@ const router = express.Router()
 router.get("/users", get);
 router.post("/users", post);
 router.delete("/users/:id", remove)
+router.patch("/users/:id", patch)
 
 router.get("/gifts", async (req, res) => {
   try {
