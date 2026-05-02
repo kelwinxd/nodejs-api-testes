@@ -37,3 +37,18 @@ export async function remove(req, res){
         return res.status(500).json({ error: error.message })
     }
 }
+
+export async function removegiver(req, res) {
+  const { id } = req.params
+  try {
+    const result = await pool.query(
+      "DELETE FROM givers WHERE id = $1 RETURNING *",
+      [id]
+    )
+    if (result.rowCount === 0)
+      return res.status(404).json({ error: "Usuário não encontrado" })
+    return res.status(204).send()
+  } catch (error) {
+    return res.status(500).json({ error: error.message })
+  }
+}

@@ -1,5 +1,5 @@
 import express from "express";
-import {get, post, remove} from './controller/userController.js'
+import {get, post, remove, removegiver} from './controller/userController.js'
 import pool from "./databasePg.js"
 
 export default function routes(){
@@ -8,6 +8,7 @@ const router = express.Router()
 router.get("/users", get);
 router.post("/users", post);
 router.delete("/users/:id", remove)
+router.delete("/givers/:id", removegiver)
 
 router.get("/gifts", async (req, res) => {
   try {
@@ -48,7 +49,7 @@ router.delete("/gifts/:id", async (req, res) => {
 })
 
  // ✅ PATCH de gifts — estava faltando essa rota
-  router.patch("/gifts/:id", async (req, res) => {
+router.patch("/gifts/:id", async (req, res) => {
     const { id } = req.params
     const { giftname, price, chosen } = req.body
 
@@ -86,6 +87,8 @@ router.post("/gifts/select", async (req, res) => {
   }
   res.json(result.rows[0])
 })
+
+
 
 return router;
 }
