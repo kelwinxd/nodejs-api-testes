@@ -1,5 +1,5 @@
 import express from "express";
-import {get, post, remove, patch} from './controller/userController.js'
+import {get, post, remove} from './controller/userController.js'
 import pool from "./databasePg.js"
 
 export default function routes(){
