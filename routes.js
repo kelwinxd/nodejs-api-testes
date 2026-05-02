@@ -8,7 +8,6 @@ const router = express.Router()
 router.get("/users", get);
 router.post("/users", post);
 router.delete("/users/:id", remove)
-router.patch("/users/:id", patch)
 
 router.get("/gifts", async (req, res) => {
   try {
@@ -47,6 +46,34 @@ router.delete("/gifts/:id", async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 })
+
+ // ✅ PATCH de gifts — estava faltando essa rota
+  router.patch("/gifts/:id", async (req, res) => {
+    const { id } = req.params
+    const { giftname, price, chosen } = req.body
+
+    const fields = []
+    const values = []
+    let idx = 1
+
+    if (giftname !== undefined) { fields.push(`giftname = $${idx++}`); values.push(giftname) }
+    if (price     !== undefined) { fields.push(`price = $${idx++}`);    values.push(price)    }
+    if (chosen    !== undefined) { fields.push(`chosen = $${idx++}`);   values.push(chosen)   }
+
+    if (fields.length === 0) return res.status(400).json({ error: "Nenhum campo para atualizar" })
+
+    values.push(id)
+    try {
+      const result = await pool.query(
+        `UPDATE cgifts SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values
+      )
+      if (result.rowCount === 0) return res.status(404).json({ error: "Não encontrado" })
+      res.json(result.rows[0])
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  })
 
 router.post("/gifts/select", async (req, res) => {
   const { id } = req.body
