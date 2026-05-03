@@ -1,5 +1,7 @@
 import express from "express";
 import {get, post, remove, removegiver} from './controller/userController.js'
+import multer from 'multer'
+import { uploadQrCode, updatePix } from './controller/uploadController.js'
 import pool from "./databasePg.js"
 
 export default function routes(){
@@ -21,14 +23,14 @@ router.get("/gifts", async (req, res) => {
 })
 
 router.post("/gifts", async (req, res) => {
-  const { giftname, price } = req.body
-  if (!giftname || !giftname.trim()) {
+  const { giftname, price, marca, link } = req.body  // ✅ adiciona marca e link
+  if (!giftname?.trim()) {
     return res.status(400).json({ message: "Nome do presente é obrigatório" })
   }
   try {
     const result = await pool.query(
-      "INSERT INTO cgifts (giftname, price, chosen) VALUES ($1, $2, false) RETURNING *",
-      [giftname.trim(), price ?? null]
+      "INSERT INTO cgifts (giftname, price, chosen, marca, link) VALUES ($1, $2, false, $3, $4) RETURNING *",
+      [giftname.trim(), price ?? null, marca ?? null, link ?? null]
     )
     res.status(201).json(result.rows[0])
   } catch (error) {
@@ -48,33 +50,36 @@ router.delete("/gifts/:id", async (req, res) => {
   }
 })
 
- // ✅ PATCH de gifts — estava faltando essa rota
+
 router.patch("/gifts/:id", async (req, res) => {
-    const { id } = req.params
-    const { giftname, price, chosen } = req.body
+  const { id } = req.params
+  const { giftname, price, chosen, codigopix, marca, link } = req.body  // ✅ adiciona os novos
 
-    const fields = []
-    const values = []
-    let idx = 1
+  const fields = []
+  const values = []
+  let idx = 1
 
-    if (giftname !== undefined) { fields.push(`giftname = $${idx++}`); values.push(giftname) }
-    if (price     !== undefined) { fields.push(`price = $${idx++}`);    values.push(price)    }
-    if (chosen    !== undefined) { fields.push(`chosen = $${idx++}`);   values.push(chosen)   }
+  if (giftname   !== undefined) { fields.push(`giftname = $${idx++}`);   values.push(giftname)   }
+  if (price      !== undefined) { fields.push(`price = $${idx++}`);      values.push(price)      }
+  if (chosen     !== undefined) { fields.push(`chosen = $${idx++}`);     values.push(chosen)     }
+  if (codigopix  !== undefined) { fields.push(`codigopix = $${idx++}`);  values.push(codigopix)  }
+  if (marca      !== undefined) { fields.push(`marca = $${idx++}`);      values.push(marca)      }
+  if (link       !== undefined) { fields.push(`link = $${idx++}`);       values.push(link)       }
 
-    if (fields.length === 0) return res.status(400).json({ error: "Nenhum campo para atualizar" })
+  if (fields.length === 0) return res.status(400).json({ error: "Nenhum campo para atualizar" })
 
-    values.push(id)
-    try {
-      const result = await pool.query(
-        `UPDATE cgifts SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
-        values
-      )
-      if (result.rowCount === 0) return res.status(404).json({ error: "Não encontrado" })
-      res.json(result.rows[0])
-    } catch (error) {
-      res.status(500).json({ error: error.message })
-    }
-  })
+  values.push(id)
+  try {
+    const result = await pool.query(
+      `UPDATE cgifts SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+      values
+    )
+    if (result.rowCount === 0) return res.status(404).json({ error: "Não encontrado" })
+    res.json(result.rows[0])
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
 
 router.post("/gifts/select", async (req, res) => {
   const { id } = req.body
@@ -87,6 +92,9 @@ router.post("/gifts/select", async (req, res) => {
   }
   res.json(result.rows[0])
 })
+
+router.post('/gifts/:id/upload', upload.single('qrcode'), uploadQrCode)
+router.patch('/gifts/:id/pix', updatePix)
 
 
 
