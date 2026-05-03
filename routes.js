@@ -4,6 +4,8 @@ import multer from 'multer'
 import { uploadQrCode, updatePix } from './controller/uploadController.js'
 import pool from "./databasePg.js"
 
+const upload = multer({ storage: multer.memoryStorage() })
+
 export default function routes(){
 const router = express.Router()
 
